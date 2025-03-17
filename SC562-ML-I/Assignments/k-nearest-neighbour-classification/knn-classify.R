@@ -1,17 +1,4 @@
-x1 = c(0,2,0,0,-1,1)
-x2 = c(3,0,1,1,0,1)
-x3 = c(0,0,3,2,1,1)
 
-
-train.x = data.frame(X1 = x1,X2 = x2,X3 = x3)
-n <- nrow( train.x ) # number of cases
-p <- ncol( train.x ) # number of excoriates/features
-
-
-
-train.y = c("Red","Red","Red","Green","Green","Red")
-
-test = c(0,0,0)
 
 knn.classify <- function( test.x, train.x, train.y, K )
 {
@@ -32,7 +19,7 @@ knn.classify <- function( test.x, train.x, train.y, K )
   # compute distances of the test case from all train cases
   euclidean_distance = NULL;  # Initialize an empty vector to store Euclidean distances
   
-  for(i in 1:n)  # Iterate through each test data point
+  for(i in 1:n)  # Iterate through each train data point
   {  
     distance = 0;  # Initialize distance to 0 for each test data point
     
@@ -43,7 +30,7 @@ knn.classify <- function( test.x, train.x, train.y, K )
     }
     
     # Store the computed Euclidean distance for the current test point
-    euclidean_distance = c(euclidean_distance, distance)
+    euclidean_distance = c(euclidean_distance, sqrt(distance))
   }
   
   
@@ -54,7 +41,8 @@ knn.classify <- function( test.x, train.x, train.y, K )
   neighbours = data.frame(distance = euclidean_distance, label = train.y)
   
   # Sort the data frame in ascending order based on the 'distance' column
-  sorted_neighbours = neighbours[order(neighbours$distance), ]
+  sorted_neighbours = neighbours[order(neighbours$distance),]
+  
   
  
  
@@ -66,6 +54,7 @@ knn.classify <- function( test.x, train.x, train.y, K )
   
   # Select the first K nearest neighbors from the sorted list
   first_k_neighbours = sorted_neighbours[1:K, ]
+  
   
   
   
@@ -84,4 +73,3 @@ knn.classify <- function( test.x, train.x, train.y, K )
   return (test.label)
 }
 
-label = knn.classify( test, train.x, train.y, 4)
