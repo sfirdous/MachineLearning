@@ -1,0 +1,240 @@
+---
+title: "Testing k-NN Classification Algorithm"
+output: html_document
+---
+
+### Loading knn-classify
+
+```{r}
+#loading knn-classify function from external file
+source("../knn-classify.R")  
+```
+
+### First test case
+
+This test case consists of 3-dimensional data points, each assigned a color label.
+
+```{r ,warning=FALSE}
+#initializing train data set 
+x1 = c(0,2,0,0,-1,1) 
+x2 = c(3,0,1,1,0,1) 
+x3 = c(0,0,3,2,1,1)
+y = c("red","red","red","green","green","red")
+
+#dataframe consists of coordinates of the points and corresponding label of each point
+train = data.frame(X1 = x1,X2 = x2,X3 = x3,Y =y)
+
+```
+
+```{r , echo=FALSE,warning=FALSE}
+#plot the train data 
+library(rgl)
+plot3d(train$X1,
+       train$X2,
+       train$X3,
+       type = "s",
+       radius = 0.25,
+       col=train$Y,
+       xlab = "X1",
+       ylab = "X2",
+       zlab = "X3")
+title3d(main = paste("Visualization of Training Data"))
+
+rglwidget()
+
+```
+
+<hr>
+
+Creating test data frame for test data points with coordinates as numeric type and label as categorical type
+
+```{r test-data}
+test = data.frame(X1 = numeric(),X2 = numeric() , X3 = numeric())
+
+#combining the test points in data frame
+test = rbind(test, c(0,0,0))
+test = rbind(test, c(1, 2, 3))
+test = rbind(test,c(-1, 0, 0))
+
+test_n = ncol(test)     #number of test data points
+
+```
+
+The following loop iterates through the test dataframe and stores the predicted label in the corresponding row for each test point.
+
+```{r}
+for(i in 1:test_n)
+  test[i,4] = knn.classify(as.numeric(test[i,1:3]), train[,1:3], train[,4],3)
+
+
+colnames(test) = c("X1","X2","X3","Y_hat")
+```
+
+```{r , echo=FALSE,}
+library(rgl)
+plot3d(train$X1,
+       train$X2,
+       train$X3,
+       type = "s",
+       radius = 0.15,
+       col=train$Y,
+       xlab = "X1",
+       ylab = "X2",
+       zlab = "X3")
+
+
+plot3d(test$X1,
+       test$X2,
+       test$X3,
+       
+       col=test$Y_hat,
+       size = 10, pch = 19,add = TRUE)
+title3d(main = paste("Visualization of Training Data and Test Data for K =", 3))
+rglwidget()
+
+
+```
+
+Spheres indicated the points from train data while square are test points.
+
+<hr>
+
+**Observations K = 3**
+
+-   For test point p(0,0,0) the predicted label is Red.
+
+    Following are first k nearest neighbours
+
+    ```         
+      distance label 
+    5 1.414214 green 
+    6 1.732051   red 
+    2 2.000000   red
+    ```
+
+    Euclidean Distance of this point from to the 5th is the smallest yet the predicted label is Red as Red appears more frequently in first k neighbours.
+
+    <br>
+
+-   For test point p(1,2,3) the predicted label is Red
+
+    Following are first k nearest neighbours
+
+    ```         
+      distance label 
+    3 1.414214   red 
+    4 1.732051 green 
+    6 2.236068   red
+    ```
+
+    Here one can observe that point possessing least distance is 3rd point with label as Red,also the point possessing larger distance i.e 6th point also has label as red.
+
+    If the label for 6th point would have been as green the predicted label for this point would have been green,even if the 4th and 6th have larger distance the the 3rd point.
+
+    <br>
+
+-   For test point p(-1,0,0) the predicted label is Green
+
+    ```         
+       distance label
+    5  1.00000  green 
+    4  2.44949  green 
+    6  2.44949    red
+    ```
+
+    In this case 5th and 4th point are closest to this point and since both these points have class green , for this point the predicted class is green.
+
+    If from any of the points 5th and 4th would have been Red the predicted label for this point would have Red
+
+    <hr>
+
+```{r}
+test = test[,1:3]  #eliminate the predicted labels
+
+for(i in 1:test_n)  #call knn-classify for each point in test
+  test[i,4] = knn.classify(as.numeric(test[i,1:3]), train[,1:3], train[,4],1)
+
+
+#ensure that the column names are the same as those in the training dataset
+colnames(test) = c("X1","X2","X3","Y_hat")  
+
+```
+
+```{r , echo=FALSE,}
+library(rgl)
+plot3d(train$X1,
+       train$X2,
+       train$X3,
+       type = "s",
+       radius = 0.15,
+       col=train$Y,
+       xlab = "X1",
+       ylab = "X2",
+       zlab = "X3")
+
+
+plot3d(test$X1,
+       test$X2,
+       test$X3,
+       
+       col=test$Y_hat,
+       size = 10, pch = 19,add = TRUE)
+title3d(main = paste("Visualization of Training Data and Test Data for K =", 1))
+rglwidget()
+
+```
+
+Spheres indicated the points from train data while square are test points.
+
+<hr>
+
+**Observation K = 1**
+
+For K = 1 we can observe that the test points get the label of point in the training data that has least distance from it.
+
+<hr>
+
+For K=5, any test data point will be labeled as "Red" since "Red" is the majority among the 5 nearest neighbors.
+
+Testing for K = 2 and K = 4 is not required as the knn-classify function makes even K, odd by increasing it by 1 to avoid ties.
+
+##### Evaluating Performance of knn-classify 
+
+```{r}
+# K values to test
+K_values = c(1, 3)
+
+#list to store confusion matrices and accuracy scores
+results = list()
+
+# Loop over each K value
+for (K in K_values) {
+  # Applying k-NN on training data
+  predicted_labels = sapply(1:nrow(train), function(i) {
+   knn.classify(as.numeric(train[i,1:3]), train[,1:3], train[,4],K)
+  })
+  
+  # Confusion Matrix
+  cm <- table(Actual = y, Predicted = predicted_labels)
+  
+  # Compute accuracy
+  accuracy = (sum(diag(cm)) / sum(cm)) * 100
+  
+  # Store results
+  results[[as.character(K)]] = list("Confusion Matrix" = cm, "Accuracy" = accuracy)
+}
+
+# Print results for each K
+for (K in K_values) {
+  cat("\n\n--- Results for K =", K, "---\n")
+  print(results[[as.character(K)]]$`Confusion Matrix`)
+  cat("\nAccuracy:", results[[as.character(K)]]$Accuracy, "\n")
+}
+
+```
+
+**Observations**
+
+Accuracy for K = 1 is 100 as the point itself is it nearest neighbour.
+
+While for K = 3 one green point was mis-classified as red that is because majority of points in its neighbourhood would have been red.
