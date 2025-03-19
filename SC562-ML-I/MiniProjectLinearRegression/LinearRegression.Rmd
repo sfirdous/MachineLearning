@@ -1,0 +1,40 @@
+---
+title: "Linear Regression on Concrete Strength Dataset"
+output: html_notebook
+---
+
+# Process the Dataset
+
+```{r}
+#store dataset 
+data = read.csv("Concrete_Data.csv")
+
+#rename columns of dataset for simplicity
+colnames(data) = c("Cement","Blast Furnace Slag"," Fly Ash","Water ","Superplasticizer","Coarse Aggregate","Fine Aggregate"," Age (day)","CCS")
+
+#CCS -> Concrete compressive strength
+
+#store the dimensions of dataset
+n = nrow(data)                         #number of instances
+p = ncol(data) - 1                     #number of predictors 
+
+```
+
+# Exploratory data analysis
+
+## Summary Statistics
+
+| Number of instances: 1030
+| Number of Attributes: 9
+| Attribute breakdown: 8 quantitative input variables, and 1 quantitative output variable
+
+``` {r}
+summary(data)
+```
+<hr>
+## Visulaization 
+### Histogram and Boxplots
+```{r}
+
+```
+
