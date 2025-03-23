@@ -1,26 +1,33 @@
 ---
 title: "Linear Regression on Concrete Strength Dataset"
-output: html_notebook
+output: html_document
+df_print: paged
 ---
+
+<hr style="height:1px; border-width:0; color:black; background-color:black">
 
 # Process the Dataset
 
+<br>
+
 ```{r}
 #store dataset 
-data = read.csv("Concrete_Data.csv")
+dataset = read.csv("Concrete_Data.csv")
 
 #rename columns of dataset for simplicity
-colnames(data) = c("Cement","Blast Furnace Slag"," Fly Ash","Water ","Superplasticizer","Coarse Aggregate","Fine Aggregate"," Age (day)","CCS")
+colnames(dataset) = c("Cement","Blast Furnace Slag"," Fly Ash","Water ","Superplasticizer","Coarse Aggregate","Fine Aggregate"," Age (day)","CCS")
 
 #CCS -> Concrete compressive strength
 
 #store the dimensions of dataset
-n = nrow(data)                         #number of instances
-p = ncol(data) - 1                     #number of predictors 
+n = nrow(dataset)                         #number of instances
+p = ncol(dataset) - 1                     #number of predictors 
 
 ```
 
 # Exploratory data analysis
+
+<hr>
 
 ## Summary Statistics
 
@@ -28,13 +35,132 @@ p = ncol(data) - 1                     #number of predictors
 | Number of Attributes: 9
 | Attribute breakdown: 8 quantitative input variables, and 1 quantitative output variable
 
-``` {r}
-summary(data)
+<br>
+
+```{r}
+summary(dataset)
 ```
+
 <hr>
-## Visulaization 
-### Histogram and Boxplots
+
+## Visulaization
+
+<hr>
+
+### Histograms
+
+```{r}
+par(mfrow = c(3, 3)) 
+
+for (i in 1:p) {
+ hist(dataset[,i],'FD',col = "lightblue",main = paste(colnames(dataset)[i]),xlab = colnames(dataset)[i])
+  
+  abline(v = mean(dataset[,i]) , lty = 2)
+}
+
+```
+
+### Boxplots
+
+```{r}
+ boxplot(dataset[,1:8],col = "orange",main = "Boxplots for All predictors")
+```
+
+### Interpretations from Histogram and Pair Plot
+
+### Pair Plots
+
+```{r}
+pairs(dataset[,c(1,2,3,6,7)], main = "Pairplot of Important Predictors", col = "blue",lower.panel = NULL)
+```
+
+### Correlations between predictors
+
+<hr>
+
+#### Correlation matrix image
+
+```{r,warning=FALSE}
+#Load required libraries
+library(ggplot2)
+library(reshape)
+
+#calculate correlation and transform it by melt() to make it suitable for ggplot 
+cormat = melt(cor(dataset[1:8]))
+
+
+#plot the correlation and adjust width of x labels
+ggplot(data = cormat,aes(x = X1,y = X2,fill = value))+
+  geom_tile()  +                     #creates heatmap
+  geom_text(aes(label = round(value, 2)), color = "white", size = 4)+                     #Add values inside tiles
+scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 2))                        #Wrap long labels
+
+```
+
+#### Table of correlation and CI for each pair of variables
+
+```{r,warning=FALSE}
+cortable = NULL
+#Iterate through all predictors
+for(i in 1:p)
+{
+   for(j in (i+1):p)
+   {
+     #calculate correlation
+    test = cor.test(dataset[,i],dataset[,j])
+    #extract the necessary information and add to cortable
+    cortable = rbind(cortable,c(colnames(dataset)[i],colnames(dataset)[j],signif(test$estimate,3),signif(test$conf.int,3),signif(test$p.value,3))) 
+   }
+    
+}
+ 
+#name the columns
+  colnames(cortable) <- c("Predictor1", "Predictor2", "Estimate", "Conf_Int_Lower", "Conf_Int_Upper", "p_value")
+  
+#exclude the last row 
+cortable = cortable[-nrow(cortable),]
+
+
+#library to display in table format
+library(DT)
+datatable(cortable, caption = "Correlation Table with Confidence Intervals")
+
+```
+
+#### Interpretation
+
+<hr>
+
+### Correlations between response and predictors
+
+<hr>
+
+#### Table of correlation and CI between response and each predictor
+
 ```{r}
 
+cor = NULL
+#iterate through predictors 
+for(i in 1:p)
+ {
+  #calculate corelation
+  test = cor.test(dataset[,i],dataset$CCS)
+  #extract necesscary info and add to cor table
+  cor = rbind(cor,c(colnames(dataset)[i],signif(test$estimate,3),signif(test$conf.int,3),signif(test$p.value,3))) 
+}
+
+#name the columns
+colnames(cor) = c("Predictor","Estimate", "Conf_Int_Lower", "Conf_Int_Upper", "p_value")
+
+#display cor in table format
+library(DT)
+datatable(cor, caption = "Table of correlation and CI between response and each predictor ")
+
+  
 ```
 
+#### Interpretation
+
+<hr>
+
+### Questions
