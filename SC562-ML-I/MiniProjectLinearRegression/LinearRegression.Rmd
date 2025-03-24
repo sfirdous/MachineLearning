@@ -37,9 +37,21 @@ p = ncol(dataset) - 1                     #number of predictors
 
 <br>
 
-```{r}
+```{r,warning=FALSE}
+spread = NULL
+for(i in 1:p)
+  spread = cbind(spread,c(sd(dataset[,i]),range(dataset[,i])))
+
+colnames(spread) = colnames(dataset[1:8])
+rownames(spread) = c("Std Deviation","Min","Max")
+
+library(knitr)
+kable(spread)
+
 summary(dataset)
 ```
+
+### Analysis Of Numerical Summaries
 
 <hr>
 
@@ -50,10 +62,10 @@ summary(dataset)
 ### Histograms
 
 ```{r}
-par(mfrow = c(3, 3)) 
+par(mfrow = c(2, 4)) 
 
 for (i in 1:p) {
- hist(dataset[,i],'FD',col = "lightblue",main = paste(colnames(dataset)[i]),xlab = colnames(dataset)[i])
+ hist(dataset[,i],'FD',col = "lightblue",main = paste(colnames(dataset)[i]),xlab = colnames(dataset)[i],probability = TRUE)
   
   abline(v = mean(dataset[,i]) , lty = 2)
 }
@@ -63,10 +75,12 @@ for (i in 1:p) {
 ### Boxplots
 
 ```{r}
- boxplot(dataset[,1:8],col = "orange",main = "Boxplots for All predictors")
+ boxplot(dataset[,1:8], col = "orange", main = "Boxplots for All Predictors", cex.axis = 0.7,
+        las = 2)
+
 ```
 
-### Interpretations from Histogram and Pair Plot
+### Interpretations for Predictors
 
 ### Pair Plots
 
@@ -164,3 +178,45 @@ datatable(cor, caption = "Table of correlation and CI between response and each 
 <hr>
 
 ### Questions
+
+<hr>
+
+# Linear Regression Analysis
+
+<br>
+
+## Regression Summaries
+
+```{r}
+# Initialize an empty list to store results
+regression_summaries <- list()
+
+
+for (i in 1:p) {
+  predictor <- colnames(dataset)[i]  # Get predictor name
+  
+  # Fit linear regression
+  model <- lm(CCS ~ dataset[[i]], data = dataset)
+  
+  # Extract summary statistics
+  summary_fit <- summary(model)
+  
+  # Store results in a structured table (data frame)
+  regression_table <- data.frame(
+    Coefficient = summary_fit$coefficients[, 1],  
+    Std_Error = summary_fit$coefficients[, 2],  
+    t_Statistic = summary_fit$coefficients[, 3],  
+    p_Value = summary_fit$coefficients[, 4]  
+  )
+  
+  # Store the table in the list
+  regression_summaries[[predictor]] <- regression_table
+}
+
+# Print a formatted table for one predictor (Example: "Cement")
+print(regression_summaries)
+
+
+
+
+```
