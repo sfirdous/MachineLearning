@@ -15,7 +15,7 @@ df_print: paged
 dataset = read.csv("Concrete_Data.csv")
 
 #rename columns of dataset for simplicity
-colnames(dataset) = c("Cement","Blast Furnace Slag"," Fly Ash","Water ","Superplasticizer","Coarse Aggregate","Fine Aggregate"," Age (day)","CCS")
+colnames(dataset) = c("Cement","Blast Furnace Slag","Fly Ash","Water","Superplasticizer","Coarse Aggregate","Fine Aggregate","Age","CCS")
 
 #CCS -> Concrete compressive strength
 
@@ -183,11 +183,21 @@ datatable(cor, caption = "Table of correlation and CI between response and each 
 
 # Linear Regression Analysis
 
-<br>
-
-## Regression Summaries
+<br> \## Multiple Linear Regression
 
 ```{r}
+# Fit multiple linear regression model
+model = lm(CCS ~ Cement + ., data = dataset)
+
+# Print model summary
+summary(model)
+
+```
+
+## Regression Plots
+
+```{r}
+par(mfrow = c(2,4))
 # Initialize an empty list to store results
 regression_summaries <- list()
 
@@ -197,6 +207,11 @@ for (i in 1:p) {
   
   # Fit linear regression
   model <- lm(CCS ~ dataset[[i]], data = dataset)
+  
+  plot(dataset$CCS,dataset[[i]],col = 'orange',xlab = "Concrete Strength",ylab = paste(predictor))
+  
+  abline(coef(model),col = 'red')
+  
   
   # Extract summary statistics
   summary_fit <- summary(model)
@@ -212,11 +227,68 @@ for (i in 1:p) {
   # Store the table in the list
   regression_summaries[[predictor]] <- regression_table
 }
+```
 
-# Print a formatted table for one predictor (Example: "Cement")
+## Regression Summaries
+
+```{r}
 print(regression_summaries)
 
+```
 
+### Interpretations
 
+<hr>
+
+## Residual Plots
+
+```{r}
+par(mfrow = c(2, 4))
+for (i in 1:p) {
+  # Fit linear regression
+  model <- lm(CCS ~ dataset[[i]], data = dataset)
+  
+  # Extract residual 
+  residuals  <- resid(model)
+  
+  #Plot residuals as function of x
+  plot(dataset[[i]],residuals, xlab = paste(colnames(dataset)[i]), ylab = "Residuals", col = "lightpink")
+  
+  abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at zero
+}
 
 ```
+
+<hr>
+
+# Diagnostics
+
+<hr>
+
+# Model Selection
+
+<hr>
+
+## Forward Stepwise Selection
+
+```{r,results='hide'}
+#start with empty predictors 
+first_start = lm(CCS ~ 1,data = dataset)    
+```
+
+### Model Selection Based on AIC Score
+
+```{r,results='hide'}
+# Stepwise selection using AIC
+stepwise_AIC = step(first_start,direction = "forward",scope = formula(model))
+```
+
+```         
+Step:  AIC=4832.91 
+CCS ~ Cement + Superplasticizer + Age + `Blast Furnace Slag` +      Water + `Fly Ash`
+```
+
+
+
+
+
