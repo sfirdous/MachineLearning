@@ -6,6 +6,10 @@ df_print: paged
 
 <hr style="height:1px; border-width:0; color:black; background-color:black">
 
+| Yeh, I. (1998). Concrete Compressive Strength [Dataset]. UCI Machine Learning Repository. <https://doi.org/10.24432/C5PK67>.
+
+<hr style="height:1px; border-width:0; color:black; background-color:black">
+
 # Process the Dataset
 
 <br>
@@ -45,13 +49,29 @@ for(i in 1:p)
 colnames(spread) = colnames(dataset[1:8])
 rownames(spread) = c("Std Deviation","Min","Max")
 
+summary(dataset)
+
 library(knitr)
 kable(spread)
-
-summary(dataset)
 ```
 
-### Analysis Of Numerical Summaries
+### **Interpretations:**
+
+-   **Blast Furnace Slag, Fly Ash, Superplasticizer, and Age**
+
+```         
+-    Standard deviation is relatively higher than the mean.
+
+-    Data points deviate from the mean.
+```
+
+-   **Cement, Water, Coarse Aggregate, and Fine Aggregate**
+
+```         
+-    Mean is either smaller or not significantly larger than the standard deviation.
+
+-    Data points are clustered around the mean.
+```
 
 <hr>
 
@@ -72,6 +92,8 @@ for (i in 1:p) {
 
 ```
 
+**From the histograms, we can observe that the data deviates due to the presence of a large number of zero values.**
+
 ### Boxplots
 
 ```{r}
@@ -80,13 +102,18 @@ for (i in 1:p) {
 
 ```
 
-### Interpretations for Predictors
-
 ### Pair Plots
 
 ```{r}
 pairs(dataset[,c(1,2,3,6,7)], main = "Pairplot of Important Predictors", col = "blue",lower.panel = NULL)
 ```
+
+### Questions
+
+1.  Is there a relationship between Predictors and Response(Concrete Compressive Strength)?
+2.  How Strong is the relationship between predictors and Response?
+3.  Is this relationship linear?
+4.  Will **Blast Furnace Slag, Fly Ash, Superplasticizer, and Age** be present in model selection?
 
 ### Correlations between predictors
 
@@ -141,7 +168,13 @@ datatable(cortable, caption = "Correlation Table with Confidence Intervals")
 
 ```
 
-#### Interpretation
+#### **Since the p-values for all predictor pairs are small and none of the confidence intervals contain zero, we cannot say that there is no correlation.**
+
+-   There **exists correlation** between all predictor pairs
+
+-   However, the **strength of correlation varies**—some pairs show **moderate relationships** (e.g., Water & Superplasticizer), while others have **weak correlations**.
+
+-   **No correlation is very strong (close to ±1)**
 
 <hr>
 
@@ -173,28 +206,30 @@ datatable(cor, caption = "Table of correlation and CI between response and each 
   
 ```
 
-#### Interpretation
+#### Interpretation's
 
-<hr>
+-   **Cement (0.498)** shows the **strongest positive correlation**
 
-### Questions
+-   **Superplasticizer (0.366) and Age (0.329)** also have **moderate positive correlations**
+
+-   **Blast Furnace Slag (0.135)** has a **weak positive correlation**
+
+-   **Fly Ash (-0.106), Water (-0.29), Coarse Aggregate (-0.165), and Fine Aggregate (-0.167)** show **negative correlations**
+
+-   **Water (-0.29)** has the **strongest negative correlation**
+
+### Answers
+
+1.  There is , Significant relationship, as all predictors have low p-values and confidence intervals that do not include zero.
+2.  The strength of the relationship between predictors and concrete compressive strength varies.
 
 <hr>
 
 # Linear Regression Analysis
 
-<br> \## Multiple Linear Regression
+<br>
 
-```{r}
-# Fit multiple linear regression model
-model = lm(CCS ~ Cement + ., data = dataset)
-
-# Print model summary
-summary(model)
-
-```
-
-## Regression Plots
+## Simple Linear Regression Plots
 
 ```{r}
 par(mfrow = c(2,4))
@@ -238,6 +273,12 @@ print(regression_summaries)
 
 ### Interpretations
 
+-   The coefficients (slopes) are quite small.
+
+-   Suggesting that changes in most predictor variables have little to no impact on the response variable.
+
+-   However, Superplasticizer has a coefficient of 1.0237, indicating a more noticeable influence on the response
+
 <hr>
 
 ## Residual Plots
@@ -259,9 +300,28 @@ for (i in 1:p) {
 
 ```
 
+**Residuals Not Centered Around Zero.**
+
+-   The relationship between individual predictors and response is not linear,not even polynomial.
+
+-   Variance is not constant.
+
+### Answer
+
+3.  Relationship between Predictors and Response is not linear.
+
 <hr>
 
-# Diagnostics
+## Multiple Linear Regression
+
+```{r}
+# Fit multiple linear regression model
+model = lm(CCS ~ ., data = dataset)
+
+# Print model summary
+summary(model)
+ 
+```
 
 <hr>
 
@@ -284,11 +344,14 @@ stepwise_AIC = step(first_start,direction = "forward",scope = formula(model))
 ```
 
 ```         
-Step:  AIC=4832.91 
+Step:  AIC = 4832.91 
 CCS ~ Cement + Superplasticizer + Age + `Blast Furnace Slag` +      Water + `Fly Ash`
 ```
 
+### Answer
 
+4.  The predictors with high deviation show up in Model Selection.
 
+## Conclusion
 
-
+The dataset does not exhibit a linear relationship. However, applying an appropriate transformation may improve the model fit and enhance predictive accuracy.
