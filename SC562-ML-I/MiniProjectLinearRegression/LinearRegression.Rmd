@@ -18,6 +18,10 @@ df_print: paged
 #store dataset 
 dataset = read.csv("Concrete_Data.csv")
 
+
+#Removes duplicate rows
+dataset = unique(dataset)
+
 #rename columns of dataset for simplicity
 colnames(dataset) = c("Cement","Blast Furnace Slag","Fly Ash","Water","Superplasticizer","Coarse Aggregate","Fine Aggregate","Age","CCS")
 
@@ -92,7 +96,7 @@ for (i in 1:p) {
 
 ```
 
-**From the histograms, we can observe that the data deviates due to the presence of a large number of zero values.**
+**From the histograms, one can observe that the data deviates due to the presence of a large number of zero values.**
 
 ### Boxplots
 
@@ -107,6 +111,14 @@ for (i in 1:p) {
 ```{r}
 pairs(dataset[,c(1,2,3,6,7)], main = "Pairplot of Important Predictors", col = "blue",lower.panel = NULL)
 ```
+
+Concrete mixes often incorporate blast furnace slag, fly ash, or a combination of both. The three observed groups reflect this pattern:
+
+Group 1: Mixes containing only fly ash (no slag).
+
+Group 3: Mixes containing only blast furnace slag (no fly ash).
+
+Group 2: Mixes that combine both materials (slag and fly ash).
 
 ### Questions
 
@@ -220,7 +232,8 @@ datatable(cor, caption = "Table of correlation and CI between response and each 
 
 ### Answers
 
-1.  There is , Significant relationship, as all predictors have low p-values and confidence intervals that do not include zero.
+1.  There is , Significant relationship, as all predictors have low p-values and confidence intervals that do not include zero. <br>
+
 2.  The strength of the relationship between predictors and concrete compressive strength varies.
 
 <hr>
@@ -243,7 +256,7 @@ for (i in 1:p) {
   # Fit linear regression
   model <- lm(CCS ~ dataset[[i]], data = dataset)
   
-  plot(dataset$CCS,dataset[[i]],col = 'orange',xlab = "Concrete Strength",ylab = paste(predictor))
+  plot(dataset[[i]],dataset$CCS,col = 'orange',xlab = "Concrete Strength",ylab = paste(predictor))
   
   abline(coef(model),col = 'red')
   
@@ -271,13 +284,51 @@ print(regression_summaries)
 
 ```
 
-### Interpretations
+### **Regression Insights for Each Predictor:** 
 
--   The coefficients (slopes) are quite small.
+> #### Cement (Positive Linear Relationship)
+>
+> The scatter plot shows a clear positive trend.
+>
+> Cement appears to be a strong predictor for concrete strength.
+>
+> A linear regression model yields a statistically significant positive coefficient.
 
--   Suggesting that changes in most predictor variables have little to no impact on the response variable.
+> #### Blast Furnace Slag (Weak Positive)
+>
+> The trend is slightly positive but weak.
 
--   However, Superplasticizer has a coefficient of 1.0237, indicating a more noticeable influence on the response
+> #### Fly Ash (Weak or Negative Relationship)
+>
+> The red line (regression line) is almost flat or slightly declining.
+>
+> Likely a small or negative coefficient in a regression model.
+>
+> Might not be a strong predictor.
+
+> #### Water (Negative Relationship)
+>
+> A clear negative linear trend.
+>
+> Regression summaries shows a statistically significant negative coefficient.
+
+> #### Superplasticizer (Positive Relationship)
+
+> #### Coarse Aggregate (Weak Negative Relationship)
+>
+> The regression line slopes downward slightly.
+>
+> A small negative coefficient, meaning increasing coarse aggregate alone does not improve strength.
+
+> #### Fine Aggregate (Weak Negative Relationship)
+>
+> Similar to coarse aggregate, weak negative trend.
+
+> #### Age (Strong Positive Relationship)
+>
+> A strong positive linear trend.
+>
+> In regression, age would has a positive coefficient and is a significant predictor.
 
 <hr>
 
@@ -300,15 +351,10 @@ for (i in 1:p) {
 
 ```
 
-**Residuals Not Centered Around Zero.**
-
--   The relationship between individual predictors and response is not linear,not even polynomial.
-
--   Variance is not constant.
-
 ### Answer
 
-3.  Relationship between Predictors and Response is not linear.
+3\. Some predictors (like Cement and Age) show **strong linear relationships**.\
+Others (like Blast Furnace Slag) **show weak or no clear trend**.
 
 <hr>
 
@@ -354,4 +400,4 @@ CCS ~ Cement + Superplasticizer + Age + `Blast Furnace Slag` +      Water + `Fly
 
 ## Conclusion
 
-The dataset does not exhibit a linear relationship. However, applying an appropriate transformation may improve the model fit and enhance predictive accuracy.
+The dataset does **not exhibit a strictly linear relationship** between all predictors and **CCS**. While some variables have clear linear trends.
