@@ -69,8 +69,7 @@ correlation_matrix = NULL
 for(i in 3:5)
 {
   for(j in (i+1):6){
-    print(paste(colnames(auto[i]),colnames(auto[j])))
     corr = cor.test(auto[,i],auto[,j])
-    correlation_matrix = rbind(correlation_matrix,c(corr$statistic,corr$conf.int))
+    correlation_matrix = rbind(correlation_matrix,c(corr$estimate,corr$conf.int))
   }
 }
