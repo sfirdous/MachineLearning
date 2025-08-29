@@ -198,7 +198,7 @@ For K=5, any test data point will be labeled as "Red" since "Red" is the majorit
 
 Testing for K = 2 and K = 4 is not required as the knn-classify function makes even K, odd by increasing it by 1 to avoid ties.
 
-##### Evaluating Performance of knn-classify 
+##### Evaluating Performance of knn-classify
 
 ```{r}
 # K values to test

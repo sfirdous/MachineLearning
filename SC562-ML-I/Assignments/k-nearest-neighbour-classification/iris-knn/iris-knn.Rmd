@@ -1,0 +1,83 @@
+---
+title: "k-NN Classification of the Iris Dataset"
+output: html_document
+date: "2025-03-17"
+---
+
+<hr>
+
+### Loading knn-classify
+
+```{r}
+#loading knn-classify function from external file
+source("../knn-classify.R")  
+```
+
+<br>
+
+### Visualizing the Selected Features for Training
+```{r}
+#colors for each species
+species_colors = c("setosa" = "green", "versicolor" = "pink", "virginica" = "yellow")
+```
+
+```{r,fig.cap="Fig-1"}
+#scatter plot
+plot(iris$Sepal.Length, iris$Petal.Length, 
+     col = species_colors[iris$Species], pch = 19,
+     xlab = "Sepal Length", ylab = "Petal Length",
+     main = "Sepal Length vs Petal Length"
+     )
+
+
+```
+
+<hr>
+
+### Evaluating Performance of knn-classify
+```{r}
+#training data
+train_x = iris[, c("Sepal.Length", "Petal.Length")]
+train_y = iris$Species
+
+# K values to test
+K_values = c(1, 5, 9, 13, 17, 21, 25, 29)
+
+#list to store confusion matrices and accuracy scores
+results = list()
+
+# Loop over each K value
+for (K in K_values) {
+  # Applying k-NN on training data
+  predicted_labels = sapply(1:nrow(train_x), function(i) {
+    knn.classify(as.numeric(train_x[i, ]), as.matrix(train_x), train_y, K)
+  })
+  
+  # Confusion Matrix
+  cm <- table(Actual = train_y, Predicted = predicted_labels)
+  
+  # Compute accuracy
+  accuracy = (sum(diag(cm)) / sum(cm)) * 100
+  
+  # Store results
+  results[[as.character(K)]] = list("Confusion Matrix" = cm, "Accuracy" = accuracy)
+}
+
+# Print results for each K
+for (K in K_values) {
+  cat("\n\n--- Results for K =", K, "---\n")
+  print(results[[as.character(K)]]$`Confusion Matrix`)
+  cat("\nAccuracy:", results[[as.character(K)]]$Accuracy, "\n")
+}
+
+```
+
+<hr>
+
+**Observation**
+<br>
+For each K all setosa's are classified as setosa,while for versicolor and virginica there are slight number of misclassification.
+
+The reason for mis-classification could be <br>
+  As we can observe from the plot in Fig-1 that setosa class is well    separated.<br>
+  While there is a slight overlap between versicolor and virginica that is causing the mis-classification of these species.

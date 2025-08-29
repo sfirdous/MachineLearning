@@ -1,0 +1,174 @@
+---
+title: "Principle Component Analysis"
+output: html_document
+date: "2025-04-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<hr>
+## Data Preparation
+<hr>
+### 1.1 Standard Datasets
+```{r stan_dataset}
+
+# load USArrest Dataset
+data("USArrests")
+
+# load iris Dataset
+data("iris")
+iris = iris[,1:4]  #eliminate Species column
+
+```
+
+### 1.2 Artificial Test Dataset
+
+```{r}
+set.seed(123)
+n = 100
+
+X1 = rnorm(n)
+m = 5
+c = 1
+
+noise =  rnorm(n,mean=0,sd = 0.5)
+X2 = m * X1 + c + noise
+
+artificial = data.frame(X1 = X1,X2 = X2)
+```
+<hr>
+## PCA Using prcomp
+<hr>
+
+```{r pca_prcomp}
+# pca for USArrest dataset
+USArrests_pca = prcomp(USArrests,scale. = TRUE)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(USArrests_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(USArrests_pca$x))
+
+# Standard Deviations (i.e., square root of eigenvalues)
+print(USArrests_pca$sdev)
+
+
+# pca for iris dataset
+iris_pca = prcomp(iris,scale. = TRUE)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(iris_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(iris_pca$x))
+
+# Standard Deviations (i.e., square root of eigenvalues)
+print(iris_pca$sdev)
+
+#pca for artificial dataset
+artificial_pca = prcomp(artificial,scale. = TRUE)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(artificial_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(artificial_pca$x))
+
+# Standard Deviations (i.e., square root of eigenvalues)
+print(artificial_pca$sdev)
+```
+
+<hr>
+## PCA from Correlation
+<hr>
+```{r pca_corr}
+source("functions/pca_from_correlation.r")
+
+# pca for USArrest dataset
+USArrests_pca = pca_from_correlation(USArrests)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(USArrests_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(USArrests_pca$x))
+
+# Standard Deviations (i.e., square root of eigenvalues)
+print(USArrests_pca$sdev)
+
+
+# pca for iris dataset
+iris_pca = pca_from_correlation(iris)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(iris_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(iris_pca$x))
+
+# Standard Deviations (i.e., square root of eigenvalues)
+print(iris_pca$sdev)
+
+#pca for artificial dataset
+artificial_pca = pca_from_correlation(artificial)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(artificial_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(artificial_pca$x))
+
+# Standard Deviations (i.e., square root of eigenvalues)
+print(artificial_pca$sdev)
+```
+
+<hr>
+## PCA from SVD
+<hr>
+```{r pca_svd}
+source("functions/pca_from_svd.r")
+
+# pca for USArrest dataset
+USArrests_pca = pca_from_svd(USArrests)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(USArrests_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(USArrests_pca$x))
+
+# Standard Deviations (i.e., square root of eigenvalues)
+print(USArrests_pca$sdev)
+
+
+# pca for iris dataset
+iris_pca = pca_from_svd(iris)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(iris_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(iris_pca$x))
+
+# Standard Deviations (i.e., square root of eigenvalues)
+print(iris_pca$sdev)
+
+#pca for artificial dataset
+artificial_pca = pca_from_svd(artificial)
+
+# Rotation/Loading matrix (i.e., eigenvectors)
+print(artificial_pca$rotation)
+
+# Scores (i.e., transformed data in new PCA space)
+print(head(artificial_pca$x))
+
+# Standard Deviations (i.e.,e d/√n)
+print(artificial_pca$sdev)
+```
+
+
+
+

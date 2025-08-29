@@ -39,7 +39,7 @@ p = ncol(dataset) - 1                     #number of predictors
 
 ## Summary Statistics
 
-| Number of instances: 1030
+| Number of instances: 1005
 | Number of Attributes: 9
 | Attribute breakdown: 8 quantitative input variables, and 1 quantitative output variable
 
@@ -284,7 +284,7 @@ print(regression_summaries)
 
 ```
 
-### **Regression Insights for Each Predictor:** 
+### **Regression Insights for Each Predictor:**
 
 > #### Cement (Positive Linear Relationship)
 >
